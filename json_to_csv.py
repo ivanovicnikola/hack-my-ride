@@ -1,7 +1,18 @@
 from copy import deepcopy
 import pandas as pd
 from pathlib import Path
+import argparse
 import json
+
+parser = argparse.ArgumentParser(description='Data Mining JSON to CSV')
+parser.add_argument('-L', '--filespath', help='UNC path where the JSON file is located', required=True)
+parser.add_argument('-O', '--outputfile', help='UNC path where the CSV file will be stored', required=True)
+args = parser.parse_args()
+
+
+if not args.filespath or not args.outputfile:
+    parser.print_help()
+    exit(1)
 
 
 def cross_join(left, right):
@@ -48,7 +59,7 @@ def json_to_dataframe(data_in):
     return pd.DataFrame(flatten_json(data_in))
 
 
-jsonpath = Path(r'C:\Users\Bogdana\Desktop\ULB\Data_Mining\vehiclePosition01.json')
+jsonpath = Path(args.filespath)
 
 with jsonpath.open('r', encoding='utf-8') as dat_f:
     dat = json.loads(dat_f.read())
@@ -63,7 +74,7 @@ dataframe.rename(columns={
         "data.Responses.lines.vehiclePositions.pointId": "pointId"
 }, inplace=True)
 
-dataframe.to_csv(r'C:\Users\Bogdana\Desktop\ULB\Data_Mining\file.csv', index=False)
+dataframe.to_csv(args.outputfile, index=False)
 
 
 
