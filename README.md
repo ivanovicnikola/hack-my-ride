@@ -1,1 +1,12 @@
-# hack-my-ride
+# Hack my ride
+
+- The `data` directory is needed to run the code in `index.ipynb` which must contain the 13 `json` files. Since `data` is contains large files therefore, it is added to `.gitignore`.
+
+## Changelog
+
+All notable changes to this project will be documented in this file.
+
+## 1.0.1 - 2022-11-06
+### Added
+- Restructured `Scripts/json_to_csv.py` to be used as recursive utility in `index.ipynb`.
+- Added the functionality to merge all the CSV files into single file `~717 MB`.
