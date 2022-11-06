@@ -39,13 +39,15 @@ def json_to_dataframe(data_in):
         if isinstance(data, dict):
             rows = [{}]
             for key, value in data.items():
-                rows = cross_join(rows, flatten_json(value, prev_heading + '.' + key))
+                rows = cross_join(rows, flatten_json(value, key))
         elif isinstance(data, list):
             rows = []
             for item in data:
                 [rows.append(elem) for elem in flatten_list(flatten_json(item, prev_heading))]
+        elif data is not None:
+            rows = [{prev_heading: data}]
         else:
-            rows = [{prev_heading[1:]: data}]
+            rows = [{}]
         return rows
 
     return pd.DataFrame(flatten_json(data_in))
@@ -57,16 +59,6 @@ with jsonpath.open('r', encoding='utf-8') as dat_f:
     dat = json.loads(dat_f.read())
 
 dataframe = json_to_dataframe(dat)
-
-dataframe.rename(columns={
-        "data.time": "time",
-        "data.Responses.lines.lineId": "lineId",
-        "data.Responses.lines.vehiclePositions.directionId": "directionId",
-        "data.Responses.lines.vehiclePositions.distanceFromPoint": "distanceFromPoint",
-        "data.Responses.lines.vehiclePositions.pointId": "pointId"
-}, inplace=True)
-
-dataframe = dataframe.drop('data.Responses', axis=1)
 
 dataframe.to_csv(args.outputfile, index=False)
 
