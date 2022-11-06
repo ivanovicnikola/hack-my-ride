@@ -1,19 +1,11 @@
 from copy import deepcopy
 import pandas as pd
 from pathlib import Path
-import argparse
+import os
 import json
 
-parser = argparse.ArgumentParser(description='Data Mining JSON to CSV')
-parser.add_argument('-L', '--filespath', help='UNC path where the JSON file is located', required=True)
-parser.add_argument('-O', '--outputfile', help='UNC path where the CSV file will be stored', required=True)
-args = parser.parse_args()
-
-
-if not args.filespath or not args.outputfile:
-    parser.print_help()
-    exit(1)
-
+# filespath = os.path.join(root, r'Project2/vehiclePosition01.json')
+# outputfile = r'vehiclePosition01.csv'
 
 def cross_join(left, right):
     new_rows = [] if right else left
@@ -58,26 +50,35 @@ def json_to_dataframe(data_in):
 
     return pd.DataFrame(flatten_json(data_in))
 
+def convert_to_csv(filespath, outputfile):
+    if filespath is None: 
+        print('No input file specified')
+        exit(1)
+    if outputfile is None: 
+        print('No output file specified')
+        exit(1)
 
-jsonpath = Path(args.filespath)
+    jsonpath = Path(filespath)
+    with jsonpath.open('r', encoding='utf-8') as dat_f:
+        dat = json.loads(dat_f.read())
 
-with jsonpath.open('r', encoding='utf-8') as dat_f:
-    dat = json.loads(dat_f.read())
+    print('\rPreprocessing ', filespath)
+    dataframe = json_to_dataframe(dat)
+    print('\rRenaming columns')
+    dataframe.rename(columns={
+            "data.time": "time",
+            "data.Responses.lines.lineId": "lineId",
+            "data.Responses.lines.vehiclePositions.directionId": "directionId",
+            "data.Responses.lines.vehiclePositions.distanceFromPoint": "distanceFromPoint",
+            "data.Responses.lines.vehiclePositions.pointId": "pointId"
+    }, inplace=True)
 
-dataframe = json_to_dataframe(dat)
+    print('\rWriting output')
+    # Redundant column
+    del dataframe['data.Responses']
+    dataframe.to_csv(outputfile, index=False)
 
-dataframe.rename(columns={
-        "data.time": "time",
-        "data.Responses.lines.lineId": "lineId",
-        "data.Responses.lines.vehiclePositions.directionId": "directionId",
-        "data.Responses.lines.vehiclePositions.distanceFromPoint": "distanceFromPoint",
-        "data.Responses.lines.vehiclePositions.pointId": "pointId"
-}, inplace=True)
-
-dataframe.to_csv(args.outputfile, index=False)
-
-
-
+    print('{} generated success!'.format(outputfile))
 
 
 
