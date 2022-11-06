@@ -44,14 +44,6 @@ def json_to_dataframe(data_in):
             rows = []
             for item in data:
                 [rows.append(elem) for elem in flatten_list(flatten_json(item, prev_heading))]
-        elif isinstance(data, list):
-            rows = []
-            if len(data) != 0:
-                for i in range(len(data)):
-                    [rows.append(elem) for elem in flatten_list(flatten_json(data[i], prev_heading))]
-            else:
-                data.append(None)
-                [rows.append(elem) for elem in flatten_list(flatten_json(data[0], prev_heading))]
         else:
             rows = [{prev_heading[1:]: data}]
         return rows
@@ -73,6 +65,8 @@ dataframe.rename(columns={
         "data.Responses.lines.vehiclePositions.distanceFromPoint": "distanceFromPoint",
         "data.Responses.lines.vehiclePositions.pointId": "pointId"
 }, inplace=True)
+
+dataframe = dataframe.drop('data.Responses', axis=1)
 
 dataframe.to_csv(args.outputfile, index=False)
 
