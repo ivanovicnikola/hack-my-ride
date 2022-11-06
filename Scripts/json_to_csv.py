@@ -1,11 +1,7 @@
 from copy import deepcopy
 import pandas as pd
 from pathlib import Path
-import os
 import json
-
-# filespath = os.path.join(root, r'Project2/vehiclePosition01.json')
-# outputfile = r'vehiclePosition01.csv'
 
 def cross_join(left, right):
     new_rows = [] if right else left
@@ -31,21 +27,15 @@ def json_to_dataframe(data_in):
         if isinstance(data, dict):
             rows = [{}]
             for key, value in data.items():
-                rows = cross_join(rows, flatten_json(value, prev_heading + '.' + key))
+                rows = cross_join(rows, flatten_json(value, key))
         elif isinstance(data, list):
             rows = []
             for item in data:
                 [rows.append(elem) for elem in flatten_list(flatten_json(item, prev_heading))]
-        elif isinstance(data, list):
-            rows = []
-            if len(data) != 0:
-                for i in range(len(data)):
-                    [rows.append(elem) for elem in flatten_list(flatten_json(data[i], prev_heading))]
-            else:
-                data.append(None)
-                [rows.append(elem) for elem in flatten_list(flatten_json(data[0], prev_heading))]
+        elif data is not None:
+            rows = [{prev_heading: data}]
         else:
-            rows = [{prev_heading[1:]: data}]
+            rows = [{}]
         return rows
 
     return pd.DataFrame(flatten_json(data_in))
