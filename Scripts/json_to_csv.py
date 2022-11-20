@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 import json
 
+
 def cross_join(left, right):
     new_rows = [] if right else left
     for left_row in left:
@@ -40,6 +41,7 @@ def json_to_dataframe(data_in):
 
     return pd.DataFrame(flatten_json(data_in))
 
+
 def convert_to_csv(filespath, outputfile):
     if filespath is None: 
         print('No input file specified')
@@ -54,18 +56,6 @@ def convert_to_csv(filespath, outputfile):
 
     print('\rPreprocessing ', filespath)
     dataframe = json_to_dataframe(dat)
-    print('\rRenaming columns')
-    dataframe.rename(columns={
-            "data.time": "time",
-            "data.Responses.lines.lineId": "lineId",
-            "data.Responses.lines.vehiclePositions.directionId": "directionId",
-            "data.Responses.lines.vehiclePositions.distanceFromPoint": "distanceFromPoint",
-            "data.Responses.lines.vehiclePositions.pointId": "pointId"
-    }, inplace=True)
-
-    print('\rWriting output')
-    # Redundant column
-    del dataframe['data.Responses']
     dataframe.to_csv(outputfile, index=False)
 
     print('{} generated success!'.format(outputfile))
