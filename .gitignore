@@ -129,4 +129,6 @@ dmypy.json
 .pyre/
 
 # Data folder
-data/
+data/vehiclePosition*.csv
+data/vehiclePosition*.json
+data/gps_track.csv
