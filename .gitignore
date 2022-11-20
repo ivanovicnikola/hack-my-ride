@@ -16,6 +16,3 @@ pip-delete-this-directory.txt
 # Data folder
 data/vehiclePosition*.csv
 data/vehiclePosition*.json
-data/gps_track.csv
-data/gtfs3Sept/*
-data/gtfs23Sept/*
