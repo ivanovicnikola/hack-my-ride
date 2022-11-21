@@ -10,3 +10,11 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Restructured `Scripts/json_to_csv.py` to be used as recursive utility in `index.ipynb`.
 - Added the functionality to merge all the CSV files into single file `~717 MB`.
+
+
+## 1.0.2 - 2022-11-21
+### Added
+- Preprocessed the GTFS23Sep files individually.
+- Merged the files on common fields and exported final `csv` file as `data/gtfs23sep/gtfs_23_merged.csv`.
+- Preprocessing involves removing redundant fields, getting rid of duplicate rows/columns, and merging bitmap fields where necessary.
+- Note: Because the processing files are huge than `100 MB` that's why they are not being tracked on git.
