@@ -13,8 +13,14 @@ All notable changes to this project will be documented in this file.
 
 
 ## 1.0.2 - 2022-11-21
-### Added
+### Modified `index.py`
 - Preprocessed the GTFS23Sep files individually.
 - Merged the files on common fields and exported final `csv` file as `data/gtfs23sep/gtfs_23_merged.csv`.
 - Preprocessing involves removing redundant fields, getting rid of duplicate rows/columns, and merging bitmap fields where necessary.
 - Note: Because the processing files are huge than `100 MB` that's why they are not being tracked on git.
+
+
+## 1.0.3 - 2022-11-23
+### Modified `index.py`
+- Preprocessed the `gps_track.csv` and produced `gps_track_processed.csv`.
+- Dropped `NA` and reformated time.

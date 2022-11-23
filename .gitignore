@@ -38,3 +38,4 @@ data/gtfs3Sept/stops.txt
 data/gtfs3Sept/translations.txt
 data/gtfs3Sept/trips.txt
 data/gtfs_23_merged.csv
+data/*
