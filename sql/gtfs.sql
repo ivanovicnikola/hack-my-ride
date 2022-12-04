@@ -46,7 +46,7 @@ AS (
 	)
 	SELECT T1.route_short_name, T1.date, T1.direction_id, T1.stop_name, T1.arrival_time AS interval_start, T2.arrival_time AS interval_end,
 		CASE
-		    WHEN T1.next_day = 0 AND T2.next_day = 1 THEN ('23:59:59' - T1.arrival_time) + (T2.arrival_time - '00:00:00')
+		    WHEN T1.next_day = 0 AND T2.next_day = 1 THEN ('23:59:59' - T1.arrival_time) + (T2.arrival_time - '00:00:00') + interval '1 second'
 		    ELSE T2.arrival_time - T1.arrival_time
 		END AS headway
 	FROM all_stop_times T1, all_stop_times T2
