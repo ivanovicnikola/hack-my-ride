@@ -27,7 +27,7 @@ WITH defacqz AS (
 		AND date='2021-09-19' 
 		AND direction_id = 0 
 		AND route_short_name = '8' 
-	ORDER BY next_day, arrival_time;
+	ORDER BY next_day, arrival_time
 )
 SELECT D1.arrival_time AS interval_start, D2.arrival_time AS interval_end, D2.arrival_time - D1.arrival_time AS headway 
 FROM defacqz D1, defacqz D2 
