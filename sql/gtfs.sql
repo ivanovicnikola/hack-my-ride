@@ -16,51 +16,33 @@ COPY stops FROM '/tmp/data/stops_processed.csv' DELIMITER ',' CSV HEADER;
 CREATE TABLE routes(route_id integer, route_short_name varchar);
 COPY routes FROM '/tmp/data/routes_processed.csv' DELIMITER ',' CSV HEADER;
 
---Scheduled Headways on line 8 direction Roodebeek at Defacqz stop on sunday, 19. Sept 2021.
-WITH defacqz AS (
-	SELECT row_number() over () as rnum, stop_name, arrival_time, next_day, trip_headsign, date, route_short_name 
-	FROM stops INNER JOIN stop_times USING(stop_id) 
-		INNER JOIN trips USING(trip_id) 
-		INNER JOIN calendar_dates USING(service_id) 
-		INNER JOIN routes USING(route_id) 
-	WHERE stop_name='DEFACQZ' 
-		AND date='2021-09-19' 
-		AND direction_id = 0 
-		AND route_short_name = '8' 
-	ORDER BY next_day, arrival_time
-)
-SELECT D1.arrival_time AS interval_start, D2.arrival_time AS interval_end, D2.arrival_time - D1.arrival_time AS headway 
-FROM defacqz D1, defacqz D2 
-WHERE D2.rnum = D1.rnum + 1;
-
 --Create materialized view with ALL the headways in the dataset
 CREATE MATERIALIZED VIEW headways
 AS (
 	WITH all_stop_times AS (
-		SELECT row_number() over () as rnum, route_short_name, date, direction_id, stop_name, next_day, arrival_time
-		FROM stops INNER JOIN stop_times USING(stop_id) 
-			INNER JOIN trips USING(trip_id) 
-			INNER JOIN calendar_dates USING(service_id) 
-			INNER JOIN routes USING(route_id) 
-		ORDER BY route_short_name, date, direction_id, stop_name, next_day, arrival_time
+		SELECT row_number() over () as rnum, *
+		FROM stop_times 
+			INNER JOIN trips USING (trip_id) 
+		ORDER BY service_id, route_id, direction_id, stop_id, next_day, arrival_time
 	)
-	SELECT T1.route_short_name, T1.date, T1.direction_id, T1.stop_name, T1.arrival_time AS interval_start, T2.arrival_time AS interval_end,
+	SELECT T1.service_id, T1.route_id, T1.direction_id, T1.trip_headsign, T1.stop_id, T1.next_day AS start_next_day, T1.arrival_time AS interval_start, T2.next_day AS end_next_day, T2.arrival_time AS interval_end,
 		CASE
 		    WHEN T1.next_day = 0 AND T2.next_day = 1 THEN ('23:59:59' - T1.arrival_time) + (T2.arrival_time - '00:00:00') + interval '1 second'
 		    ELSE T2.arrival_time - T1.arrival_time
 		END AS headway
 	FROM all_stop_times T1, all_stop_times T2
-	WHERE T1.route_short_name = T2.route_short_name
-		AND T1.date = T2.date
+	WHERE T1.service_id = T2.service_id
+		AND T1.route_id = T2.route_id
 		AND T1.direction_id = T2.direction_id
-		AND T1.stop_name = T2.stop_name
-		AND T2.rnum = T1.rnum + 1
+		AND T1.stop_id = T2.stop_id
+		AND T2.rnum = T1.rnum + 1 
 );
 
---Test the view for the first query
-SELECT *
-FROM headways
-WHERE stop_name='DEFACQZ' 
-	AND date='2021-09-19' 
-	AND direction_id = 0 
-	AND route_short_name = '8';
+--Scheduled Headways on line 8 direction Roodebek at Defacqz Stop on a weekday of september 2021
+SELECT route_short_name, stop_name, trip_headsign, start_next_day, interval_start, end_next_day, interval_end, headway, day
+FROM headways 
+	INNER JOIN routes USING(route_id)
+	INNER JOIN stops USING(stop_id)
+	INNER JOIN calendar USING(service_id)
+WHERE route_short_name = '8' AND service_id = 236487051 AND stop_name = 'DEFACQZ' AND direction_id = 0
+ORDER BY start_next_day, interval_start;
