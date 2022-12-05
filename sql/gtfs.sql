@@ -39,10 +39,75 @@ AS (
 );
 
 --Scheduled Headways on line 8 direction Roodebek at Defacqz Stop on a weekday of september 2021
-SELECT route_short_name, stop_name, trip_headsign, start_next_day, interval_start, end_next_day, interval_end, headway, day
+SELECT service_id, route_short_name, stop_name, trip_headsign, start_next_day, interval_start, end_next_day, interval_end, headway, day
 FROM headways 
 	INNER JOIN routes USING(route_id)
 	INNER JOIN stops USING(stop_id)
 	INNER JOIN calendar USING(service_id)
 WHERE route_short_name = '8' AND service_id = 236487051 AND stop_name = 'DEFACQZ' AND direction_id = 0
 ORDER BY start_next_day, interval_start;
+
+--Average headways per line
+SELECT route_short_name, avg(headway) AS avg_headway
+FROM headways INNER JOIN routes USING(route_id)
+GROUP BY route_short_name
+ORDER BY avg_headway;
+
+--Average headways per work day/saturday/sunday
+SELECT day, avg(headway) AS avg_headway
+FROM headways INNER JOIN calendar USING(service_id)
+GROUP BY day;
+
+--Average headways per time period
+SELECT
+(
+	SELECT avg(headway) AS "To 7"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start < '07:00:00'
+),
+(
+	SELECT avg(headway) AS "From 07:00 to 09:00"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start > '07:00:00' and interval_start < '09:00:00'
+),
+(
+	SELECT avg(headway) AS "From 09:00 to 11:00"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start > '09:00:00' and interval_start < '11:00:00'
+),
+(
+	SELECT avg(headway) AS "From 11:00 to 13:00"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start > '11:00:00' and interval_start < '13:00:00'
+),
+(
+	SELECT avg(headway) AS "From 13:00 to 15:00"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start > '13:00:00' and interval_start < '15:00:00'
+),
+(
+	SELECT avg(headway) AS "From 15:00 to 17:00"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start > '15:00:00' and interval_start < '17:00:00'
+),
+(
+	SELECT avg(headway) AS "From 17:00 to 19:00"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start > '17:00:00' and interval_start < '19:00:00'
+),
+(
+	SELECT avg(headway) AS "From 19:00 to 21:00"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start > '19:00:00' and interval_start < '21:00:00'
+),
+(
+	SELECT avg(headway) AS "From 21:00 to 23:00"
+	FROM headways
+	WHERE start_next_day = 0 and interval_start > '21:00:00' and interval_start < '23:00:00'
+),
+(
+	SELECT avg(headway) AS "From 23:00"
+	FROM headways
+	WHERE (start_next_day = 0 and interval_start > '23:00:00') or start_next_day = 1
+);
+
