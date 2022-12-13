@@ -68,46 +68,56 @@ SELECT
 (
 	SELECT avg(headway) AS "From 07:00 to 09:00"
 	FROM headways
-	WHERE start_next_day = 0 and interval_start > '07:00:00' and interval_start < '09:00:00'
+	WHERE start_next_day = 0 and interval_start >= '07:00:00' and interval_start < '09:00:00'
 ),
 (
 	SELECT avg(headway) AS "From 09:00 to 11:00"
 	FROM headways
-	WHERE start_next_day = 0 and interval_start > '09:00:00' and interval_start < '11:00:00'
+	WHERE start_next_day = 0 and interval_start >= '09:00:00' and interval_start < '11:00:00'
 ),
 (
 	SELECT avg(headway) AS "From 11:00 to 13:00"
 	FROM headways
-	WHERE start_next_day = 0 and interval_start > '11:00:00' and interval_start < '13:00:00'
+	WHERE start_next_day = 0 and interval_start >= '11:00:00' and interval_start < '13:00:00'
 ),
 (
 	SELECT avg(headway) AS "From 13:00 to 15:00"
 	FROM headways
-	WHERE start_next_day = 0 and interval_start > '13:00:00' and interval_start < '15:00:00'
+	WHERE start_next_day = 0 and interval_start >= '13:00:00' and interval_start < '15:00:00'
 ),
 (
 	SELECT avg(headway) AS "From 15:00 to 17:00"
 	FROM headways
-	WHERE start_next_day = 0 and interval_start > '15:00:00' and interval_start < '17:00:00'
+	WHERE start_next_day = 0 and interval_start >= '15:00:00' and interval_start < '17:00:00'
 ),
 (
 	SELECT avg(headway) AS "From 17:00 to 19:00"
 	FROM headways
-	WHERE start_next_day = 0 and interval_start > '17:00:00' and interval_start < '19:00:00'
+	WHERE start_next_day = 0 and interval_start >= '17:00:00' and interval_start < '19:00:00'
 ),
 (
 	SELECT avg(headway) AS "From 19:00 to 21:00"
 	FROM headways
-	WHERE start_next_day = 0 and interval_start > '19:00:00' and interval_start < '21:00:00'
+	WHERE start_next_day = 0 and interval_start >= '19:00:00' and interval_start < '21:00:00'
 ),
 (
 	SELECT avg(headway) AS "From 21:00 to 23:00"
 	FROM headways
-	WHERE start_next_day = 0 and interval_start > '21:00:00' and interval_start < '23:00:00'
+	WHERE start_next_day = 0 and interval_start >= '21:00:00' and interval_start < '23:00:00'
 ),
 (
-	SELECT avg(headway) AS "From 23:00"
+	SELECT avg(headway) AS "From 23:00 to 1:00"
 	FROM headways
-	WHERE (start_next_day = 0 and interval_start > '23:00:00') or start_next_day = 1
+	WHERE (start_next_day = 0 and interval_start >= '23:00:00') or (start_next_day = 1 and interval_start < '01:00:00')
+),
+(
+	SELECT avg(headway) AS "From 01:00 to 3:00"
+	FROM headways
+	WHERE start_next_day = 1 and interval_start >= '01:00:00' and interval_start < '03:00:00'
+),
+(
+	SELECT avg(headway) AS "From 03:00"
+	FROM headways
+	WHERE start_next_day = 1 and interval_start >= '03:00:00'
 );
 
