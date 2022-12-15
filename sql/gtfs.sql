@@ -23,16 +23,16 @@ AS (
 		SELECT row_number() over () as rnum, *
 		FROM stop_times 
 			INNER JOIN trips USING (trip_id) 
-		ORDER BY service_id, route_id, direction_id, stop_id, next_day, arrival_time
+		ORDER BY route_id, service_id, direction_id, stop_id, next_day, arrival_time
 	)
-	SELECT T1.service_id, T1.route_id, T1.direction_id, T1.trip_headsign, T1.stop_id, T1.next_day AS start_next_day, T1.arrival_time AS interval_start, T2.next_day AS end_next_day, T2.arrival_time AS interval_end,
+	SELECT T1.route_id, T1.service_id, T1.direction_id, T1.trip_headsign, T1.stop_id, T1.next_day AS start_next_day, T1.arrival_time AS interval_start, T2.next_day AS end_next_day, T2.arrival_time AS interval_end,
 		CASE
 		    WHEN T1.next_day = 0 AND T2.next_day = 1 THEN ('23:59:59' - T1.arrival_time) + (T2.arrival_time - '00:00:00') + interval '1 second'
 		    ELSE T2.arrival_time - T1.arrival_time
 		END AS headway
 	FROM all_stop_times T1, all_stop_times T2
-	WHERE T1.service_id = T2.service_id
-		AND T1.route_id = T2.route_id
+	WHERE T1.route_id = T2.route_id
+		AND T1.service_id = T2.service_id
 		AND T1.direction_id = T2.direction_id
 		AND T1.stop_id = T2.stop_id
 		AND T2.rnum = T1.rnum + 1 
