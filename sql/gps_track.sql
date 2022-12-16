@@ -14,13 +14,38 @@ WITH schedule AS (
 	SELECT * 
 	FROM gps_tracks INNER JOIN stops S1 ON (pointid = S1.stop_id) 
 		INNER JOIN stops S2 ON (directionid = S2.stop_id)
-	WHERE lineid=8 AND S1.stop_name = 'DEFACQZ' AND distancefrompoint < 50 AND date = '2021-09-09' AND S2.stop_name = 'ROODEBEEK'
+	WHERE lineid=8 AND S1.stop_name = 'DEFACQZ' AND distancefrompoint < 50 AND (date = '2021-09-09' OR date = '2021-09-10') AND S2.stop_name = 'ROODEBEEK'
 	ORDER BY time
 )
-SELECT S.arrival_time "Scheduled time", A1.time "Next arrival", A1.time - S.arrival_time "Wait"
-FROM schedule S, actual_times A1
-WHERE A1.time >= S.arrival_time AND NOT EXISTS (
-	SELECT *
-	FROM actual_times A2
-	WHERE A2.time >= S.arrival_time AND A2.time < A1.time
-);
+SELECT *
+FROM
+(
+	SELECT A1.date, S.next_day, S.arrival_time scheduled_time, A1.time next_arrival, A1.time - S.arrival_time wait
+	FROM schedule S, actual_times A1
+	WHERE A1.date = '2021-09-09' AND S.next_day = 0 AND A1.time >= S.arrival_time AND NOT EXISTS (
+		SELECT *
+		FROM actual_times A2
+		WHERE A2.date = '2021-09-09' AND A2.time >= S.arrival_time AND A2.time < A1.time
+	)
+	UNION
+	SELECT A1.date, S.next_day, S.arrival_time scheduled_time, A1.time next_arrival, ('23:59:59' - S.arrival_time) + (A1.time - '00:00:00') + interval '1 second' wait
+	FROM schedule S, actual_times A1
+	WHERE A1.date = '2021-09-10' AND S.next_day = 0 AND NOT EXISTS (
+		SELECT *
+		FROM actual_times A2
+		WHERE A2.date = '2021-09-09' AND A2.time >= S.arrival_time
+	) AND NOT EXISTS (
+		SELECT *
+		FROM actual_times A2
+		WHERE A2.date = '2021-09-10' AND A2.time < A1.time
+	)
+	UNION
+	SELECT A1.date, S.next_day, S.arrival_time scheduled_time, A1.time next_arrival, A1.time - S.arrival_time wait
+	FROM schedule S, actual_times A1
+	WHERE A1.date = '2021-09-10' AND S.next_day = 1 AND A1.time >= S.arrival_time AND NOT EXISTS (
+		SELECT *
+		FROM actual_times A2
+		WHERE A2.date = '2021-09-10' AND A2.time >= S.arrival_time AND A2.time < A1.time
+	)
+) AS punctuality
+ORDER BY next_day, scheduled_time;
