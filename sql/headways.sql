@@ -42,7 +42,7 @@ GROUP BY day;
 --Average headways per time period
 SELECT
 (
-	SELECT avg(headway) AS "To 7"
+	SELECT avg(headway) AS "To 07:00"
 	FROM headways
 	WHERE start_next_day = 0 and interval_start < '07:00:00'
 ),

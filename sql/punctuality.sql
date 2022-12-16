@@ -11,7 +11,7 @@ WITH schedule AS (
 	SELECT * 
 	FROM gps_tracks INNER JOIN stops S1 ON (pointid = S1.stop_id) 
 		INNER JOIN stops S2 ON (directionid = S2.stop_id)
-	WHERE lineid=8 AND S1.stop_name = 'DEFACQZ' AND distancefrompoint < 50 AND (date = '2021-09-09' OR date = '2021-09-10') AND S2.stop_name = 'ROODEBEEK'
+	WHERE lineid=8 AND S1.stop_name = 'DEFACQZ' AND distancefrompoint < 100 AND (date = '2021-09-09' OR date = '2021-09-10') AND S2.stop_name = 'ROODEBEEK'
 	ORDER BY time
 )
 SELECT *
