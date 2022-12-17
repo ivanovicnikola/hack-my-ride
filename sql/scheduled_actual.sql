@@ -1,4 +1,4 @@
---Scheduled and Actual times
+--Scheduled and Actual times on 9 september 2021 for line 8 Defacqz stop direction Roodebeek
 CREATE MATERIALIZED VIEW scheduled_actual AS (
 	WITH schedule AS (
 		SELECT * 
