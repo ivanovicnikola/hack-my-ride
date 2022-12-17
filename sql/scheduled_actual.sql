@@ -37,7 +37,7 @@ CREATE MATERIALIZED VIEW scheduled_actual AS (
 --Punctuality analysis
 SELECT SA1.scheduled_time, SA2.actual_time next_arrival, SA2.actual_time - SA1.scheduled_time wait
 FROM scheduled_actual SA1, scheduled_actual SA2
-WHERE SA2.actual_time IS NOT NULL AND SA1.next_day = 0
+WHERE SA2.actual_time IS NOT NULL AND SA1.next_day = 0 AND SA1.actual_time IS NOT NULL
 	AND SA2.actual_time >= SA1.scheduled_time
 	AND NOT EXISTS (
 		SELECT *
