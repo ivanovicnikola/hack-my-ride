@@ -43,7 +43,7 @@ CREATE MATERIALIZED VIEW scheduled_actual AS (
 CREATE TABLE scheduled_actual_predicted(trip_headsign varchar, stop_name varchar, next_day integer, scheduled_time timestamp, actual_time timestamp);
 COPY scheduled_actual_predicted FROM '/tmp/missing_values_imputed_Roodebeek.csv'DELIMITER ',' CSV HEADER;
 
---Punctuality analysis -TODO:Replace with predicted data
+--Punctuality analysis
 CREATE MATERIALIZED VIEW punctuality AS (
 SELECT SA1.trip_headsign, SA1.stop_name, SA1.next_day, SA1.scheduled_time, SA1.actual_time, SA2.actual_time next_arrival, SA2.actual_time - SA1.scheduled_time wait
 FROM scheduled_actual_predicted SA1, scheduled_actual_predicted SA2
@@ -62,3 +62,19 @@ WHERE SA1.trip_headsign = SA2.trip_headsign AND SA1.stop_name = SA2.stop_name
 --example punctuality analysis for Defacqz stop direction Roodebeek
 SELECT * FROM punctuality WHERE trip_headsign = 'ROODEBEEK' AND stop_name = 'DEFACQZ';
 
+--Regularity analysis
+
+CREATE MATERIALIZED VIEW regularity AS (
+	WITH enumerated AS (
+		SELECT row_number() over () as rnum, *
+		FROM scheduled_actual_predicted
+	)
+	SELECT	E1.trip_headsign, E1.stop_name, E1.next_day next_day_start, E1.scheduled_time scheduled_start, E1.actual_time actual_start, E2.next_day next_day_end, E2.scheduled_time scheduled_end, E2.actual_time actual_end, E2.scheduled_time - E1.scheduled_time scheduled_headway, E2.actual_time - E1.actual_time actual_headway
+	FROM enumerated E1, enumerated E2
+	WHERE E1.trip_headsign = E2.trip_headsign
+		AND E1.stop_name = E2.stop_name
+		AND E2.rnum = E1.rnum + 1
+);
+
+--example regularity analysis for Defacqz stop direction Roodebeek period 10:00 - 15:00
+SELECT * FROM regularity WHERE trip_headsign = 'ROODEBEEK' AND stop_name = 'DEFACQZ' AND scheduled_start >= '2021-09-09 10:00:00' AND scheduled_start <= '2021-09-09 15:00:00';
