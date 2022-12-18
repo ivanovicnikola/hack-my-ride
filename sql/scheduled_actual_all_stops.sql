@@ -43,25 +43,6 @@ CREATE MATERIALIZED VIEW scheduled_actual AS (
 CREATE TABLE scheduled_actual_predicted(trip_headsign varchar, stop_name varchar, next_day integer, scheduled_time timestamp, actual_time timestamp);
 COPY scheduled_actual_predicted FROM '/tmp/missing_values_imputed_Roodebeek.csv'DELIMITER ',' CSV HEADER;
 
---Punctuality analysis
-CREATE MATERIALIZED VIEW punctuality AS (
-SELECT SA1.trip_headsign, SA1.stop_name, SA1.next_day, SA1.scheduled_time, SA1.actual_time, SA2.actual_time next_arrival, SA2.actual_time - SA1.scheduled_time wait
-FROM scheduled_actual_predicted SA1, scheduled_actual_predicted SA2
-WHERE SA1.trip_headsign = SA2.trip_headsign AND SA1.stop_name = SA2.stop_name
-	AND SA2.actual_time IS NOT NULL AND SA1.actual_time IS NOT NULL
-	AND SA2.actual_time >= SA1.scheduled_time
-	AND NOT EXISTS (
-		SELECT *
-		FROM scheduled_actual_predicted SA3
-		WHERE SA1.trip_headsign = SA3.trip_headsign AND SA1.stop_name = SA3.stop_name
-			AND SA3.actual_time IS NOT NULL AND SA3.actual_time >= SA1.scheduled_time AND SA3.actual_time < SA2.actual_time
-	)
-);
-
-
---example punctuality analysis for Defacqz stop direction Roodebeek
-SELECT * FROM punctuality WHERE trip_headsign = 'ROODEBEEK' AND stop_name = 'DEFACQZ';
-
 --Regularity analysis
 
 CREATE MATERIALIZED VIEW regularity AS (
