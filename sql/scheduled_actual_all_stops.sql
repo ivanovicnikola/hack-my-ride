@@ -33,19 +33,19 @@ CREATE MATERIALIZED VIEW scheduled_actual AS (
 				OR (A2.time < A1.time AND ABS(EXTRACT(epoch FROM (A2.time - S1.arrival_time))) = ABS(EXTRACT(epoch FROM (A1.time - S1.arrival_time)))))
 		)
 	)
-	SELECT S.trip_headsign, S.stop_name, S.next_day, S.arrival_time scheduled_time, SA.actual_time actual_time
+	SELECT S.trip_headsign, S.stop_name, S.stop_lat, S.stop_lon, S.next_day, S.arrival_time scheduled_time, SA.actual_time actual_time
 	FROM schedule S LEFT OUTER JOIN scheduled_actual SA ON (S.trip_headsign = SA.trip_headsign AND S.stop_name = SA.stop_name AND S.next_day = SA.next_day AND S.arrival_time = SA.scheduled_time)
 	ORDER BY S.trip_headsign, S.stop_name, S.next_day, S.arrival_time
 );
 
 
 --After inputing missing values copy
-CREATE TABLE scheduled_actual_predicted(trip_headsign varchar, stop_name varchar, next_day integer, scheduled_time timestamp, actual_time timestamp);
+CREATE TABLE scheduled_actual_predicted(trip_headsign varchar, stop_name varchar, stop_lat double precision, stop_lon double precision, next_day integer, scheduled_time timestamp, actual_time timestamp);
 COPY scheduled_actual_predicted FROM '/tmp/missing_values_imputed_Roodebeek.csv'DELIMITER ',' CSV HEADER;
 
 --Punctuality analysis
 CREATE MATERIALIZED VIEW punctuality AS (
-SELECT SA1.trip_headsign, SA1.stop_name, SA1.next_day, SA1.scheduled_time, SA1.actual_time, SA2.actual_time next_arrival, SA2.actual_time - SA1.scheduled_time wait
+SELECT SA1.trip_headsign, SA1.stop_name,  SA1.stop_lat, SA1.stop_lon, SA1.next_day, SA1.scheduled_time, SA1.actual_time, SA2.actual_time next_arrival, SA2.actual_time - SA1.scheduled_time wait
 FROM scheduled_actual_predicted SA1, scheduled_actual_predicted SA2
 WHERE SA1.scheduled_time - SA1.actual_time > '00:02:00'
 	AND SA1.trip_headsign = SA2.trip_headsign AND SA1.stop_name = SA2.stop_name
