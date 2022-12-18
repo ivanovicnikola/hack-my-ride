@@ -58,7 +58,7 @@ WHERE SA1.scheduled_time - SA1.actual_time > '00:02:00'
 			AND SA3.actual_time IS NOT NULL AND SA3.actual_time >= SA1.scheduled_time AND SA3.actual_time < SA2.actual_time
 	)
 UNION
-SELECT SA.trip_headsign, SA.stop_name, SA.next_day, SA.scheduled_time, SA.actual_time, SA.actual_time next_arrival, SA.actual_time - SA.scheduled_time wait
+SELECT SA.trip_headsign, SA.stop_name, SA1.stop_lat, SA1.stop_lon, SA.next_day, SA.scheduled_time, SA.actual_time, SA.actual_time next_arrival, SA.actual_time - SA.scheduled_time wait
 FROM scheduled_actual_predicted SA
 WHERE SA.scheduled_time - SA.actual_time <= '00:02:00'
 );
