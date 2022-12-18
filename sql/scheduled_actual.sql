@@ -33,14 +33,3 @@ CREATE MATERIALIZED VIEW scheduled_actual AS (
 	SELECT S.next_day, S.arrival_time scheduled_time, SA.actual_time actual_time
 	FROM schedule S LEFT OUTER JOIN scheduled_actual SA ON (S.arrival_time = SA.scheduled_time)
 );
-
---Punctuality analysis
-SELECT SA1.scheduled_time, SA2.actual_time next_arrival, SA2.actual_time - SA1.scheduled_time wait
-FROM scheduled_actual SA1, scheduled_actual SA2
-WHERE SA2.actual_time IS NOT NULL AND SA1.next_day = 0 AND SA1.actual_time IS NOT NULL
-	AND SA2.actual_time >= SA1.scheduled_time
-	AND NOT EXISTS (
-		SELECT *
-		FROM scheduled_actual SA3
-		WHERE SA3.actual_time IS NOT NULL AND SA3.actual_time >= SA1.scheduled_time AND SA3.actual_time < SA2.actual_time
-	);
