@@ -33,7 +33,7 @@ CREATE MATERIALIZED VIEW scheduled_actual AS (
 				OR (A2.time < A1.time AND ABS(EXTRACT(epoch FROM (A2.time - S1.arrival_time))) = ABS(EXTRACT(epoch FROM (A1.time - S1.arrival_time)))))
 		)
 	)
-	SELECT S.trip_headsign, S.stop_name, S.stop_lat, S.stop_lon, S.next_day, S.arrival_time scheduled_time, SA.actual_time actual_time
+	SELECT DISTINCT S.trip_headsign, S.stop_name, S.stop_lat, S.stop_lon, S.next_day, S.arrival_time scheduled_time, SA.actual_time actual_time
 	FROM schedule S LEFT OUTER JOIN scheduled_actual SA ON (S.trip_headsign = SA.trip_headsign AND S.stop_name = SA.stop_name AND S.next_day = SA.next_day AND S.arrival_time = SA.scheduled_time)
 	ORDER BY S.trip_headsign, S.stop_name, S.next_day, S.arrival_time
 );
