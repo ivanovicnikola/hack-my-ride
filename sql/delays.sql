@@ -13,3 +13,7 @@ FROM scheduled_actual_predicted
 WHERE trip_headsign = 'ROODEBEEK' AND scheduled_time >= '19:20:00' AND scheduled_time <= '19:50:00' AND actual_time > scheduled_time
 GROUP BY stop_sequence, stop_name
 ORDER BY stop_sequence;
+
+--Create table with clustered delays
+CREATE TABLE delays_clustered(trip_id bigint, cluster varchar, "score(cluster_0)" double precision, "score(cluster_1)" double precision);
+COPY delays_clustered FROM 'C:\Users\Public\data\total_delays_clusters.csv' DELIMITER ',' CSV HEADER;

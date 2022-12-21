@@ -1,0 +1,26 @@
+with days_separated as(with calendar_per_day as (select service_id,
+       generate_series(start_date::date, end_date::date, interval '1 day') as start_day,
+	   day
+from calendar)
+select *,  extract(isodow from start_day) AS dow from calendar_per_day)
+select * from days_separated
+where day = 1 and dow = 6
+union
+select * from days_separated
+where day = 2 and dow = 7
+union
+select * from days_separated
+where day = 0 and dow = 1
+union
+select * from days_separated
+where day = 0 and dow = 2
+union
+select * from days_separated
+where day = 0 and dow = 3
+union
+select * from days_separated
+where day = 0 and dow = 4
+union
+select * from days_separated
+where day = 0 and dow = 5
+order by start_day;
